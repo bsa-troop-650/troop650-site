@@ -273,7 +273,7 @@ export default function Troop650Site() {
           </Reveal>
           <Reveal className="patrol-card patrol-soon" delay={90}>
             <SoonCrest /><h3>The girls&rsquo; patrol</h3>
-            <p className="patrol-tag">Brand new and still picking a name — and word is they like it spicy too. Watch this space.</p>
+            <p className="patrol-tag">Brand new and still picking a name. Watch this space.</p>
           </Reveal>
         </div>
       </section>
