@@ -246,7 +246,7 @@ export default function Troop650Site() {
         <div className="adv-head">
           <Reveal><p className="eyebrow">What&rsquo;s next</p></Reveal>
           <Reveal as="h2" className="h2 h2-light" delay={60}>Upcoming adventures</Reveal>
-          <Reveal delay={120}><p className="adv-lead">Straight from the troop calendar — there&rsquo;s an adventure almost every month. Here&rsquo;s what&rsquo;s coming up next.</p></Reveal>
+          <Reveal delay={120}><p className="adv-lead">Straight from the troop calendar — there&rsquo;s an outdoor activity almost every month. Here&rsquo;s what&rsquo;s coming up next.</p></Reveal>
         </div>
         {upcoming.length > 0 ? (
           <>
