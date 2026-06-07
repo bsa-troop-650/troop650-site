@@ -13,17 +13,17 @@ import {
    (SVG scenes + labeled photo zones), day-to-day stays in GroupMe/Scoutbook.
    Replace [PLACEHOLDERS] + photo zones with real, non-identifying assets. */
 
-const BEASCOUT_URL = "https://beascout.scouting.org"; // swap for your unit-specific Apply URL from my.Scouting
+const BEASCOUT_URL = "https://beascout.scouting.org/list/?zip=92336&program%5B0%5D=scoutsBSA&scoutsBSAFilter=all&miles=10&unitID=143906"; // swap for your unit-specific Apply URL from my.Scouting
 const SCOUTBOOK_URL = "https://advancements.scouting.org"; // Scoutbook Plus member login
 
 const ADVENTURES = [
-  { type: "Hike",          name: "Trail Hike — 5 or 10 miles", start: "2026-06-27",                 place: "Route dropping soon" },
-  { type: "Summer Camp",   name: "Summer Camp",                start: "2026-07-05", end: "2026-07-11", place: "Fiesta Island, San Diego" },
-  { type: "Campout",       name: "San Mateo Campout",          start: "2026-07-18", end: "2026-07-19", place: "San Mateo" },
-  { type: "Hike",          name: "Etiwanda Falls Hike",        start: "2026-08-22",                 place: "Etiwanda Falls" },
-  { type: "Campout",       name: "Silverwood Lake Campout",    start: "2026-09-19", end: "2026-09-20", place: "Silverwood Lake" },
-  { type: "Family Campout",name: "San Gorgonio Family Campout",start: "2026-10-24", end: "2026-10-25", place: "San Gorgonio Campground" },
-  { type: "Campout",       name: "Rocketry Campout",           start: "2026-11-21", end: "2026-11-22", place: "Coyote Lake" },
+  { type: "Hike",          name: "Trail Hike — 5 or 10 miles", start: "2026-06-27",                 place: "Route dropping soon", photo: "/events/trail.jpg" },
+  { type: "Summer Camp",   name: "Summer Camp",                start: "2026-07-05", end: "2026-07-11", place: "Fiesta Island, San Diego", photo: "/events/fiesta-island.jpeg" },
+  { type: "Campout",       name: "San Mateo Campout",          start: "2026-07-18", end: "2026-07-19", place: "San Mateo", photo: "/events/san-mateo.jpg" },
+  { type: "Hike",          name: "Etiwanda Falls Hike",        start: "2026-08-22",                 place: "Etiwanda Falls", photo: "/events/etiwanda-falls.jpg" },
+  { type: "Campout",       name: "Silverwood Lake Campout",    start: "2026-09-19", end: "2026-09-20", place: "Silverwood Lake", photo: "/events/silverwood-lake.jpg" },
+  { type:"Family Campout", name:"San Gorgonio Family Campout", start:"2026-10-24", end:"2026-10-25", place:"San Gorgonio Campground", photo:"/events/san-gorgonio.png", focus:"50% 75%" },
+  { type: "Campout",       name: "Rocketry Campout",           start: "2026-11-21", end: "2026-11-22", place: "Coyote Lake", photo: "/events/coyote-lake.jpg" },
 ];
 
 const FAQS = [
@@ -78,6 +78,7 @@ function Mark({ size = 30, light = false }) {
 
 function HeroScene() {
   const stars = [[60,40],[140,70],[220,30],[300,80],[380,50],[470,90],[560,40],[650,70],[740,35],[820,80],[900,55],[110,120],[260,140],[420,130],[600,150],[780,120],[860,140],[160,180],[520,180],[700,190],[40,90],[960,110]];
+  const eagle = "M 0,-23 L 3,-22 L 5,-19 L 3.5,-15 L 9,-14 L 20,-20 L 36,-26 L 52,-28 L 64,-27 L 71,-27 L 70,-23 L 66,-24 L 65,-20 L 60,-21 L 59,-17 L 54,-18 L 52,-14 L 44,-6 L 32,2 L 22,6 L 14,5 L 10,9 L 8,15 L 11,24 L 4,27 L 0,26 L -4,27 L -11,24 L -8,15 L -10,9 L -14,5 L -22,6 L -32,2 L -44,-6 L -52,-14 L -54,-18 L -59,-17 L -60,-21 L -65,-20 L -66,-24 L -70,-23 L -71,-27 L -64,-27 L -52,-28 L -36,-26 L -20,-20 L -9,-14 L -3.5,-15 L -5,-19 L -3,-22 Z";
   const cst = "M 700.1 42 C 693.1 56.5 679.1 71.3 678.3 87.4 C 677.4 104.1 689.7 121 695.1 136.8 C 684 122 671.5 105.4 660.4 90.6 C 654.4 92.2 647.7 93.9 641.7 95.5 C 639.6 101.5 635.2 108 635 114.4 C 634.7 120.2 638.5 126.1 640.2 131.6 C 645.6 126.9 651.6 121.6 657 116.9 C 663.2 120.4 672.3 122 676.3 127.9 C 681.1 135 682.6 145.5 682.5 154.2 C 682.4 157.6 677.9 159.9 675.7 162.7 C 672.5 160.2 668.8 157.4 665.6 154.9 C 667.2 162.6 669 171.2 670.6 178.9 C 675.2 178 680.5 176.9 685.2 176 C 688.8 166.6 693 156 696.7 146.6 C 694.6 157.2 689.2 168.9 690.1 179.7 C 690.5 185.3 697 189.4 700.3 194 C 703.5 189.5 709.9 185.5 710.3 180 C 711 169.1 705.7 157.3 703.6 146.6 C 707.2 156 711.3 166.6 714.8 176 C 719.6 176.8 725 177.8 729.8 178.6 C 731.3 171 732.9 162.4 734.3 154.8 C 731.1 157.3 727.5 160.1 724.3 162.7 C 722.1 159.9 717.6 157.6 717.5 154.2 C 717.3 145.8 718.7 135.6 723.3 128.6 C 727.3 122.6 736.3 120.6 742.4 116.8 C 748 121.6 754.2 126.9 759.8 131.6 C 761.5 125 765.7 117.7 765 110.8 C 764.5 104.7 759.1 99.3 756.2 93.8 C 750.4 93 743.9 92.1 738.1 91.3 C 727.6 105.8 715.7 122.2 705.2 136.7 C 710.6 120.8 722.9 103.9 722 87.1 C 721.2 71.1 707.1 56.4 700.1 42 Z";
   return (
     <svg className="hero-svg" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
@@ -98,6 +99,9 @@ function HeroScene() {
       <g className="stars">{stars.map((p, i) => (<circle key={i} cx={p[0]} cy={p[1]} r={i % 4 === 0 ? 1.8 : 1.1} fill="#f4e7c9" style={{ animationDelay: `${(i % 7) * 0.4}s` }} className="twinkle" />))}</g>
       <path className="cst" d={cst} pathLength="520" fill="none" stroke="#f4e7c9" strokeWidth="1.1" opacity="0.85" strokeLinejoin="round" />
       {[[700.1,42],[641.7,95.5],[640.2,131.6],[670.6,178.9],[700.3,194],[729.8,178.6],[759.8,131.6],[756.2,93.8]].map((p,i)=>(<circle key={i} cx={p[0]} cy={p[1]} r="2.2" fill="#fff3da" />))}
+      <g transform="translate(330,232) scale(0.85)">
+        <path className="eagle" d={eagle} fill="#15110b" opacity="0.88" />
+      </g>
       <g stroke="#5b6b6a" strokeWidth="1" fill="none" opacity="0.6">
         <path d="M0 360 Q 250 330 500 352 T 1000 348" /><path d="M0 380 Q 250 352 500 372 T 1000 368" /><path d="M0 400 Q 250 374 500 392 T 1000 388" />
       </g>
@@ -124,15 +128,19 @@ function AdventureCard({ a, featured, delay }) {
   return (
     <Reveal className={`adv-card ${featured ? "adv-feat" : ""}`} delay={delay}>
       <div className="adv-illus">
-        <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-          <rect width="200" height="120" fill="var(--pine)" />
-          <path d="M0 86 L46 54 L82 84 L120 50 L156 82 L200 56 L200 120 L0 120Z" fill="#16311f" />
-          <path d="M0 104 L60 78 L110 104 L160 80 L200 100 L200 120 L0 120Z" fill="#0e2417" />
-          <circle cx="158" cy="34" r="16" fill="var(--gold)" opacity="0.9" />
-        </svg>
+        {a.photo ? (
+          <img className="adv-img" src={a.photo} alt={a.place} loading="lazy" style={{ objectPosition: a.focus || "center" }} />
+        ) : (
+          <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <rect width="200" height="120" fill="var(--pine)" />
+            <path d="M0 86 L46 54 L82 84 L120 50 L156 82 L200 56 L200 120 L0 120Z" fill="#16311f" />
+            <path d="M0 104 L60 78 L110 104 L160 80 L200 100 L200 120 L0 120Z" fill="#0e2417" />
+            <circle cx="158" cy="34" r="16" fill="var(--gold)" opacity="0.9" />
+          </svg>
+        )}
         <span className="adv-type">{a.type}</span>
         {featured && <span className="adv-next">Next up</span>}
-        <span className="adv-photo-note">photo zone</span>
+        {!a.photo && <span className="adv-photo-note">photo zone</span>}
       </div>
       <div className="adv-body">
         <div className="adv-when"><Icon size={15} strokeWidth={2} /><span>{formatRange(a)}</span><span className="adv-rel">{relLabel(a.start)}</span></div>
@@ -408,6 +416,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .twinkle{animation:tw 3.4s ease-in-out infinite}
 @keyframes tw{0%,100%{opacity:.25}50%{opacity:1}}
 .cst{stroke-dasharray:520;stroke-dashoffset:520;animation:draw 3.2s cubic-bezier(.55,0,.3,1) forwards .6s, linepulse 4s ease-in-out infinite 3.8s}
+.eagle{transform-box:fill-box;transform-origin:center;animation:soar 24s ease-in-out infinite}
+@keyframes soar{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(14px,-7px) rotate(-1.2deg)}}
 @keyframes draw{to{stroke-dashoffset:0}}
 @keyframes linepulse{0%,100%{opacity:.6}50%{opacity:.18}}
 .fire{animation:flick 1.6s ease-in-out infinite alternate;transform-origin:500px 486px}
@@ -432,6 +442,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .adv-feat{outline:2px solid var(--gold);outline-offset:-2px}
 .adv-illus{position:relative;height:118px}
 .adv-illus svg{width:100%;height:100%}
+.adv-illus img{width:100%;height:100%;object-fit:cover}
 .adv-type{position:absolute;top:.7rem;left:.7rem;font-family:var(--fmono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;background:rgba(14,32,23,.7);color:var(--gold);padding:.3rem .55rem;border-radius:7px}
 .adv-next{position:absolute;top:.7rem;right:.7rem;font-size:.66rem;font-weight:700;background:var(--ember);color:#2a1606;padding:.3rem .55rem;border-radius:7px}
 .adv-photo-note{position:absolute;bottom:.55rem;right:.7rem;font-family:var(--fmono);font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(244,237,220,.5)}
