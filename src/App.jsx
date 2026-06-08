@@ -24,6 +24,9 @@ const ADVENTURES = [
   { type: "Campout",       name: "Silverwood Lake Campout",    start: "2026-09-19", end: "2026-09-20", place: "Silverwood Lake", photo: "/events/silverwood-lake.jpg" },
   { type:"Family Campout", name:"San Gorgonio Family Campout", start:"2026-10-24", end:"2026-10-25", place:"San Gorgonio Campground", photo:"/events/san-gorgonio.png", focus:"50% 75%" },
   { type: "Campout",       name: "Rocketry Campout",           start: "2026-11-21", end: "2026-11-22", place: "Coyote Lake", photo: "/events/coyote-lake.jpg" },
+  { type:"Campout", name:"...", start:"2026-04-01", end:"2026-04-02", place:"...", photo:"/events/sillhouette.jpeg" },
+  { type:"Service Project", name:"...", start:"2026-05-01", end:"2026-05-02", place:"...", photo:"/events/woodworking.png" },
+  { type:"Campout", name:"...", start:"2026-06-01", end:"2026-06-02", place:"...", photo:"/events/cabin.jpeg" },
 ];
 
 const FAQS = [
@@ -182,6 +185,11 @@ export default function Troop650Site() {
     .filter(a => (a.end ? parseLocal(a.end) : parseLocal(a.start)) >= startOfToday())
     .sort((x, y) => parseLocal(x.start) - parseLocal(y.start)).slice(0, 6);
 
+  const recent = ADVENTURES
+    .filter(a => (a.end ? parseLocal(a.end) : parseLocal(a.start)) < startOfToday() && a.photo)
+    .sort((x, y) => parseLocal(x.start) - parseLocal(y.start))
+    .slice(-3).reverse();  
+
   const go = (id) => { setNavOpen(false); document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); };
   const submit = () => {
     if (!form.name.trim() || !form.email.trim()) { setErr("Name and email, please."); return; }
@@ -258,7 +266,23 @@ export default function Troop650Site() {
         )}
         <Reveal className="recaps" delay={80}>
           <div className="recaps-tx"><h3>From recent trips</h3><p>Our youth webmaster keeps the highlights rolling.</p></div>
-          <div className="recaps-row">{["Last campout", "Trail day", "Service project"].map((t, i) => (<div className="recap-tile" key={i}><svg viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="160" height="120" fill="#1e3d2c" /><path d="M0 92 L48 60 L92 92 L130 64 L160 88 L160 120 L0 120Z" fill="#13301e" /></svg><span className="recap-label">photo: {t}</span></div>))}</div>
+          <div className="recaps-row">
+            {Array.from({length:3}, (_,i) => recent[i] || [{name:"Last campout"},{name:"Trail day"},{name:"Service project"}][i])
+              .map((t,i) => (
+              <div className="recap-tile" key={i}>
+                {t.photo ? (
+                  <img src={t.photo} alt={t.name} loading="lazy"
+                    style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}} />
+                ) : (
+                  <svg viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                    <rect width="160" height="120" fill="#1e3d2c"/>
+                    <path d="M0 92 L48 60 L92 92 L130 64 L160 88 L160 120 L0 120Z" fill="#13301e"/>
+                  </svg>
+                )}
+                {!t.photo && <span className="recap-label">{t.name}</span>}
+              </div>
+            ))}
+          </div> 
         </Reveal>
       </section>
 
