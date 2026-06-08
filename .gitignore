@@ -5,5 +5,5 @@ dist/
 .DS_Store
 *.local
 .vite/
-
+assets/
 

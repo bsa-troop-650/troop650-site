@@ -165,11 +165,13 @@ function TacoCrest() {
     </svg>
   );
 }
+
 function SoonCrest() {
   return (
-    <svg viewBox="0 0 84 84" aria-hidden="true" className="crest">
-      <circle cx="42" cy="42" r="40" fill="none" stroke="var(--sage)" strokeWidth="2" strokeDasharray="5 5" />
-      <path d="M42 24 L46 38 L60 42 L46 46 L42 60 L38 46 L24 42 L38 38 Z" fill="none" stroke="var(--sage)" strokeWidth="2" strokeLinejoin="round" />
+    <svg viewBox="0 0 400 400" aria-hidden="true" className="patrol-crest">
+      <circle cx="200" cy="200" r="190" fill="none" stroke="var(--sage)" strokeWidth="9" strokeDasharray="24 24" />
+      <path d="M200 114 L219 181 L286 200 L219 219 L200 286 L181 219 L114 200 L181 181 Z"
+        fill="none" stroke="var(--sage)" strokeWidth="9" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -292,7 +294,7 @@ export default function Troop650Site() {
         <Reveal delay={110}><p className="patrols-lead">Every scout belongs to a patrol — a little crew they camp, cook, and figure things out with. Right now we&rsquo;ve got one, with a second on the way.</p></Reveal>
         <div className="patrol-grid">
           <Reveal className="patrol-card" delay={0}>
-            <TacoCrest /><h3>The Spicy Tacos</h3>
+            <img src="/spicy-tacos-crest.png" alt="Spicy Tacos patrol crest" className="patrol-crest" /><h3>The Spicy Tacos</h3>
             <p className="patrol-tag">The original crew. Bring an appetite for adventure — and a little heat.</p>
           </Reveal>
           <Reveal className="patrol-card patrol-soon" delay={90}>
@@ -315,7 +317,7 @@ export default function Troop650Site() {
         <div className="join-cols">
           <Reveal className="steps" delay={100}>
             {[
-              { n: "01", t: "Just show up", d: "Drop in any Thursday at 7 PM in Rancho Cucamonga. No uniform, no paperwork, no commitment." },
+              { n: "01", t: "Just show up", d: "Drop in any Thursday at 7 PM at Etiwanda Community Church in Rancho Cucamonga. No uniform, no paperwork, no commitment." },
               { n: "02", t: "Meet the troop", d: "Watch a real meeting, meet the scouts and leaders, and ask us anything at all." },
               { n: "03", t: "Make it official", d: "Ready? Apply in a few minutes on Be A Scout and your scout is in." },
             ].map((s, i) => (<div className="step" key={i}><span className="step-n">{s.n}</span><div><h4>{s.t}</h4><p>{s.d}</p></div></div>))}
@@ -495,6 +497,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .patrol-card:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
 .crest{width:84px;height:84px;margin:0 auto 1.1rem}
 .patrol-card h3{font-family:var(--fdisp);font-size:1.5rem;font-weight:600;margin-bottom:.45rem}
+.patrol-crest{width:140px;height:140px;object-fit:contain;display:block;margin:0 auto}
 .patrol-tag{color:var(--ink-soft);font-size:.92rem;max-width:32ch;margin:0 auto}
 .patrol-soon{background:transparent;border-style:dashed;border-color:var(--sage)}
 .patrol-soon h3{color:var(--ink-soft)}
