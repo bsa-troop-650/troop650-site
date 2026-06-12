@@ -3,31 +3,19 @@ import {
   Mountain, TreePine, Tent, Compass, Flame, Users, Sparkles,
   ArrowUpRight, ArrowRight, Menu, X, Mail, MapPin, Clock,
   ChevronDown, Backpack, Send, Check, Footprints, Map, PawPrint,
-  HandHeart
+  HandHeart, ChevronLeft, ChevronRight
 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ADVENTURES, MON, parseLocal, startOfToday, slugFor } from "./data/adventures";
 
 /* TROOP 650 — Rancho Cucamonga · marketing site
    Direction by the troop's youth webmaster: warm & friendly (campfire), classic
    Scout green + tan, patrols get their own section, show lots, animal service project.
-   Core philosophies held: marketing-first, Be A Scout primary CTA, NO kids' faces
-   (SVG scenes + labeled photo zones), day-to-day stays in GroupMe/Scoutbook.
-   Replace [PLACEHOLDERS] + photo zones with real, non-identifying assets. */
+   Core philosophies held: marketing-first, Be A Scout primary CTA, day-to-day
+   stays in GroupMe/Scoutbook. Photos publish with signed release forms on file. */
 
 const BEASCOUT_URL = "https://beascout.scouting.org/list/?zip=92336&program%5B0%5D=scoutsBSA&scoutsBSAFilter=all&miles=10&unitID=143906"; // swap for your unit-specific Apply URL from my.Scouting
 const SCOUTBOOK_URL = "https://advancements.scouting.org"; // Scoutbook Plus member login
-
-const ADVENTURES = [
-  { type: "Hike",          name: "Trail Hike — 5 or 10 miles", start: "2026-06-27",                 place: "Route dropping soon" },
-  { type: "Summer Camp",   name: "Summer Camp",                start: "2026-07-05", end: "2026-07-11", place: "Fiesta Island, San Diego", photo: "/events/fiesta-island.jpeg" },
-  { type: "Campout",       name: "San Mateo Campout",          start: "2026-07-18", end: "2026-07-19", place: "San Mateo", photo: "/events/san-mateo.jpg" },
-  { type: "Hike",          name: "Etiwanda Falls Hike",        start: "2026-08-22",                 place: "Etiwanda Falls", photo: "/events/etiwanda-falls.jpg" },
-  { type: "Campout",       name: "Silverwood Lake Campout",    start: "2026-09-19", end: "2026-09-20", place: "Silverwood Lake", photo: "/events/silverwood-lake.jpg" },
-  { type:"Family Campout", name:"San Gorgonio Family Campout", start:"2026-10-24", end:"2026-10-25", place:"San Gorgonio Campground", photo:"/events/san-gorgonio.png", focus:"50% 75%" },
-  { type: "Campout",       name: "Rocketry Campout",           start: "2026-11-21", end: "2026-11-22", place: "Coyote Lake", photo: "/events/coyote-lake.jpg" },
-  { type:"Campout", name:"...", start:"2026-04-01", end:"2026-04-02", place:"...", photo:"/events/sillhouette.jpeg" },
-  { type:"Service Project", name:"...", start:"2026-05-01", end:"2026-05-02", place:"...", photo:"/events/woodworking.png" },
-  { type:"Campout", name:"...", start:"2026-06-01", end:"2026-06-02", place:"...", photo:"/events/cabin.jpeg" },
-];
 
 const FAQS = [
   { q: "Who can join?", a: "Boys and girls, roughly ages 10 to 17. We're a family troop — siblings and friends of all genders are welcome. (If your scout just earned the Arrow of Light, they can cross over now.)" },
@@ -36,9 +24,6 @@ const FAQS = [
   { q: "How much of a time commitment is it?", a: "A weekly Thursday meeting, plus an adventure most months — usually a weekend campout or hike — and a week of summer camp. Come to what you can." },
 ];
 
-const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const parseLocal = (s) => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
-const startOfToday = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
 function relLabel(start) {
   const diff = Math.round((parseLocal(start) - startOfToday()) / 86400000);
   if (diff <= 0) return "Happening now";
@@ -100,9 +85,11 @@ function HeroScene() {
       <rect width="1000" height="520" fill="url(#sky)" />
       <circle cx="500" cy="300" r="220" fill="url(#sun)" />
       <g className="stars">{stars.map((p, i) => (<circle key={i} cx={p[0]} cy={p[1]} r={i % 4 === 0 ? 1.8 : 1.1} fill="#f4e7c9" style={{ animationDelay: `${(i % 7) * 0.4}s` }} className="twinkle" />))}</g>
+      <g className="cst-g">
       <path className="cst" d={cst} pathLength="520" fill="none" stroke="#f4e7c9" strokeWidth="1.1" opacity="0.85" strokeLinejoin="round" />
       {[[700.1,42],[641.7,95.5],[640.2,131.6],[695.1,136.8],[705.2,136.7],[670.6,178.9],[700.3,194],[729.8,178.6],[759.8,131.6],[756.2,93.8]].map((p,i)=>(<circle key={i} cx={p[0]} cy={p[1]} r="2.2" fill="#fff3da" />))}
-      <g transform="translate(330,232) scale(0.85)">
+      </g>
+      <g className="eagle-g" transform="translate(330,232) scale(0.85)">
         <path className="eagle" d={eagle} fill="#15110b" opacity="0.88" />
       </g>
       <g stroke="#5b6b6a" strokeWidth="1" fill="none" opacity="0.6">
@@ -176,11 +163,61 @@ function SoonCrest() {
   );
 }
 
+function PlaceholderHills() {
+  return (
+    <svg viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <rect width="160" height="120" fill="#1e3d2c" />
+      <path d="M0 92 L48 60 L92 92 L130 64 L160 88 L160 120 L0 120Z" fill="#13301e" />
+    </svg>
+  );
+}
+
+/* Horizontally scrolling rail of past adventures. Arrows appear only when the
+   row overflows its container (i.e. once enough trips have accumulated). */
+function RecapRail({ items }) {
+  const railRef = useRef(null);
+  const [canL, setCanL] = useState(false);
+  const [canR, setCanR] = useState(false);
+  const update = () => {
+    const el = railRef.current; if (!el) return;
+    setCanL(el.scrollLeft > 4);
+    setCanR(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  };
+  useEffect(() => {
+    update();
+    const el = railRef.current; if (!el) return;
+    el.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => { el.removeEventListener("scroll", update); window.removeEventListener("resize", update); };
+  }, [items.length]);
+  const nudge = (dir) => railRef.current?.scrollBy({ left: dir * 520, behavior: "smooth" });
+  return (
+    <div className="recaps-wrap">
+      {canL && <button className="rail-btn rail-l" onClick={() => nudge(-1)} aria-label="Scroll back"><ChevronLeft size={20} /></button>}
+      <div className="recaps-row" ref={railRef}>
+        {items.length === 0 && ["Last campout", "Trail day", "Service project"].map((n, i) => (
+          <div className="recap-tile" key={i}><PlaceholderHills /><span className="recap-label">{n}</span></div>
+        ))}
+        {items.map((t) => (
+          <Link className="recap-tile" key={slugFor(t)} to={`/galleries/${slugFor(t)}`}>
+            {t.photo ? (
+              <img src={t.photo} alt={t.name} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", objectPosition: t.focus || "center" }} />
+            ) : (<PlaceholderHills />)}
+            <span className="recap-name">{t.name}</span>
+          </Link>
+        ))}
+      </div>
+      {canR && <button className="rail-btn rail-r" onClick={() => nudge(1)} aria-label="Scroll ahead"><ChevronRight size={20} /></button>}
+    </div>
+  );
+}
+
 export default function Troop650Site() {
   const [navOpen, setNavOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState(0);
   const [sent, setSent] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", phone: "", scout: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", scout: "", botcheck: "" });
+  const [sending, setSending] = useState(false);
   const [err, setErr] = useState("");
 
   const upcoming = ADVENTURES
@@ -188,17 +225,35 @@ export default function Troop650Site() {
     .sort((x, y) => parseLocal(x.start) - parseLocal(y.start)).slice(0, 6);
 
   const recent = ADVENTURES
-    .filter(a => (a.end ? parseLocal(a.end) : parseLocal(a.start)) < startOfToday() && a.photo)
-    .sort((x, y) => parseLocal(x.start) - parseLocal(y.start))
-    .slice(-3).reverse();  
+    .filter(a => (a.end ? parseLocal(a.end) : parseLocal(a.start)) < startOfToday())
+    .sort((x, y) => parseLocal(y.start) - parseLocal(x.start));
 
   const go = (id) => { setNavOpen(false); document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); };
-  const submit = () => {
+  const submit = async () => {
     if (!form.name.trim() || !form.email.trim()) { setErr("Name and email, please."); return; }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) { setErr("That email looks off."); return; }
-    setErr("");
-    // PROTOTYPE: confirmation only. Wire to Formspree / Web3Forms / a Firebase function to deliver leads.
-    setSent(true);
+    if (form.botcheck) return; // honeypot: silently drop bots
+    setErr(""); setSending(true);
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: "5f26086e-b26a-47ee-b592-03072f0376e6",
+          subject: `Troop 650 website inquiry from ${form.name}`,
+          from_name: "650rc.com contact form",
+          name: form.name,
+          email: form.email,
+          phone: form.phone || "(none given)",
+          message: form.scout || "(no details given)",
+        }),
+      });
+      const data = await res.json();
+      if (data.success) setSent(true);
+      else setErr("Hmm — that didn\u2019t go through. Try again, or email troop650rc@gmail.com.");
+    } catch {
+      setErr("Hmm — that didn\u2019t go through. Try again, or email troop650rc@gmail.com.");
+    } finally { setSending(false); }
   };
 
   return (
@@ -267,24 +322,8 @@ export default function Troop650Site() {
           <Reveal className="adv-empty"><Sparkles size={26} /><p>Our next season of adventures is being planned. Leave us a line and we&rsquo;ll tell you what&rsquo;s coming up.</p><button className="btn btn-amber" onClick={() => go("visit")}>Get in touch <ArrowRight size={16} /></button></Reveal>
         )}
         <Reveal className="recaps" delay={80}>
-          <div className="recaps-tx"><h3>From recent trips</h3><p>Our youth webmaster keeps the highlights rolling.</p></div>
-          <div className="recaps-row">
-            {Array.from({length:3}, (_,i) => recent[i] || [{name:"Last campout"},{name:"Trail day"},{name:"Service project"}][i])
-              .map((t,i) => (
-              <div className="recap-tile" key={i}>
-                {t.photo ? (
-                  <img src={t.photo} alt={t.name} loading="lazy"
-                    style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}} />
-                ) : (
-                  <svg viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                    <rect width="160" height="120" fill="#1e3d2c"/>
-                    <path d="M0 92 L48 60 L92 92 L130 64 L160 88 L160 120 L0 120Z" fill="#13301e"/>
-                  </svg>
-                )}
-                {!t.photo && <span className="recap-label">{t.name}</span>}
-              </div>
-            ))}
-          </div> 
+          <div className="recaps-tx"><h3>From recent adventures</h3><p>Tap any trip to flip through the photos — our youth webmaster keeps the highlights rolling.</p></div>
+          <RecapRail items={recent} />
         </Reveal>
       </section>
 
@@ -296,10 +335,12 @@ export default function Troop650Site() {
           <Reveal className="patrol-card" delay={0}>
             <img src="/spicy-tacos-crest.png" alt="Spicy Tacos patrol crest" className="patrol-crest" /><h3>The Spicy Tacos</h3>
             <p className="patrol-tag">The original crew. Bring an appetite for adventure — and a little heat.</p>
+            <Link className="patrol-link" to="/patrols/spicy-tacos">Visit patrol page <ArrowRight size={13} /></Link>
           </Reveal>
           <Reveal className="patrol-card patrol-soon" delay={90}>
             <SoonCrest /><h3>The girls&rsquo; patrol</h3>
             <p className="patrol-tag">Brand new and still picking a name. Watch this space.</p>
+            <Link className="patrol-link" to="/patrols/new-patrol">Visit patrol page <ArrowRight size={13} /></Link>
           </Reveal>
         </div>
       </section>
@@ -351,8 +392,9 @@ export default function Troop650Site() {
                   <div className="field"><label>Phone <i>(optional)</i></label><input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="(909) 555-0150" /></div>
                 </div>
                 <div className="field"><label>About your scout <i>(optional)</i></label><textarea rows={3} value={form.scout} onChange={e => setForm({ ...form, scout: e.target.value })} placeholder="Age, what they're into, anything you're wondering about…" /></div>
+                <input type="text" value={form.botcheck} onChange={(e) => setForm({ ...form, botcheck: e.target.value })} style={{ display: "none" }} tabIndex="-1" autoComplete="off" aria-hidden="true" />
                 {err && <p className="form-err">{err}</p>}
-                <button className="btn btn-amber btn-wide" onClick={submit}>Send it <Send size={16} /></button>
+                <button className="btn btn-amber btn-wide" onClick={submit} disabled={sending}>Send it <Send size={16} /></button>
                 <p className="privacy">We&rsquo;ll only use this to reach out about joining Troop 650. No spam, no sharing — ever.</p>
               </div>
             ) : (
@@ -373,7 +415,7 @@ export default function Troop650Site() {
           <div className="foot-brand"><div className="brand"><Mark size={28} light /><span className="brand-tx"><strong>Troop 650</strong><em>Scouting America</em></span></div><p>A family troop of Scouts BSA in Rancho Cucamonga, California.<br />California Inland Empire Council.</p></div>
           <div className="foot-links"><a href={BEASCOUT_URL} target="_blank" rel="noreferrer">Be A Scout <ArrowUpRight size={13} /></a><button onClick={() => go("adventures")}>Activities</button><button onClick={() => go("patrols")}>Patrols</button><button onClick={() => go("join")}>Join</button><button onClick={() => go("visit")}>Visit</button><button onClick={() => go("members")}>Members</button></div>
         </div>
-        <div className="foot-bottom"><p className="foot-privacy"><Map size={13} /> We keep our scouts&rsquo; names and faces off the public web. Real photos live behind the troop&rsquo;s private channels.</p><p>© 2026 Troop 650 · 650rc.com · <span className="motto">Be Prepared.</span></p></div>
+        <div className="foot-bottom"><p className="foot-privacy"><Map size={13} /> Adventure photos are shared with our families&rsquo; permission — release forms on file.</p><p>© 2026 Troop 650 · 650rc.com · <span className="motto">Be Prepared.</span></p></div>
       </footer>
     </div>
   );
@@ -486,10 +528,17 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .recaps{margin-top:3.2rem;border-top:1px solid var(--line-light);padding-top:2.2rem;display:grid;grid-template-columns:1fr 2fr;gap:2rem;align-items:center}
 .recaps-tx h3{font-family:var(--fdisp);font-size:1.5rem;font-weight:600;margin-bottom:.5rem}
 .recaps-tx p{color:rgba(244,237,220,.7);font-size:.92rem;max-width:40ch}
-.recaps-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem}
-.recap-tile{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:4/3;border:1px dashed rgba(244,237,220,.25)}
+.recaps-wrap{position:relative}
+.recaps-row{display:flex;gap:.9rem;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+.recaps-row::-webkit-scrollbar{display:none}
+.recap-tile{position:relative;flex:0 0 240px;scroll-snap-align:start;border-radius:14px;overflow:hidden;aspect-ratio:4/3;border:1px dashed rgba(244,237,220,.25);display:block;text-decoration:none;color:inherit}
+a.recap-tile{border-style:solid;border-color:rgba(244,237,220,.18)}
 .recap-tile svg{width:100%;height:100%;opacity:.7}
 .recap-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--fmono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(244,237,220,.55)}
+.recap-name{position:absolute;left:0;right:0;bottom:0;padding:.9rem .7rem .55rem;font-family:var(--fmono);font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;color:#f4eddc;background:linear-gradient(transparent,rgba(8,16,11,.85))}
+.rail-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:38px;height:38px;border-radius:50%;border:1px solid rgba(244,237,220,.3);background:rgba(16,32,23,.88);color:#f4eddc;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s,color .2s}
+.rail-btn:hover{background:var(--gold);color:#1e3d2c}
+.rail-l{left:-12px}.rail-r{right:-12px}
 .patrols{padding:clamp(4rem,9vw,7rem) clamp(1.2rem,5vw,4rem);background:var(--paper)}
 .patrols-lead{color:var(--ink-soft);font-size:1.04rem;margin-top:1rem;max-width:52ch}
 .patrol-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-top:2.6rem;max-width:760px}
@@ -499,6 +548,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .patrol-card h3{font-family:var(--fdisp);font-size:1.5rem;font-weight:600;margin-bottom:.45rem}
 .patrol-crest{width:140px;height:140px;object-fit:contain;display:block;margin:0 auto}
 .patrol-tag{color:var(--ink-soft);font-size:.92rem;max-width:32ch;margin:0 auto}
+.patrol-link{display:inline-flex;align-items:center;gap:.35rem;margin-top:.95rem;font-family:var(--fmono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ember,#de7b33);text-decoration:none}
+.patrol-link:hover{text-decoration:underline}
 .patrol-soon{background:transparent;border-style:dashed;border-color:var(--sage)}
 .patrol-soon h3{color:var(--ink-soft)}
 .service{padding:0 clamp(1.2rem,5vw,4rem) clamp(4rem,8vw,6rem);background:var(--paper)}
@@ -584,10 +635,15 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   .hero-stats{grid-template-columns:1fr 1fr}
   .why-grid{grid-template-columns:1fr}
   .adv-grid{grid-template-columns:1fr}
-  .recaps-row{grid-template-columns:1fr 1fr}
   .patrol-grid{grid-template-columns:1fr}
   .service-inner{flex-direction:column;text-align:center}
   .row2{grid-template-columns:1fr}
   .join-band>span{margin-right:0;width:100%}
+}
+@media (max-width:640px){
+  /* Bring the hero decorations into the narrow visible slice of the scene.
+     Two knobs: translateX for the constellation, translate(x,y) scale() for the eagle. */
+  .cst-g{transform:translateX(-140px)}
+  .eagle-g{transform:translate(565px,282px) scale(.45)}
 }
 `;
