@@ -141,7 +141,7 @@ def run():
         if not DRY_RUN:
             final = sorted(photos_col.stream(), key=lambda p: p.to_dict().get("order", ""))
             final_d = [p.to_dict() for p in final]
-            cover = next((p for p in final_d if p["name"].lower().startswith("cover.")),
+            cover = next((p for p in final_d if re.match(r"cover[\.\@]", p["name"].lower())),
                          final_d[0] if final_d else None)
             database.collection("events").document(doc.id).set({
                 "photoCount": len(final_d),
