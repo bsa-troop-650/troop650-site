@@ -75,7 +75,11 @@ def _focus_from_name(name: str):
 def run():
     database = db()
     bkt = bucket()
-    events = list(database.collection("events").where("source", "==", "calendar").stream())
+    # Every gallery doc with a folder gets its photos synced -- calendar-born and
+    # manual alike. (Galleries are keyed by event id or folder id; both live in
+    # the same `events` collection.)
+    events = [d for d in database.collection("events").stream()
+              if d.to_dict().get("folderId") and d.to_dict().get("slug")]
     total_new = total_gone = 0
 
     for doc in events:

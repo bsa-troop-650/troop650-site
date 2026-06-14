@@ -25,7 +25,7 @@ export const startOfToday = () => { const n = new Date(); return new Date(n.getF
 export const slugFor = (a) =>
   `${a.start}_${a.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;
 
-export const findBySlug = (events, slug) => events.find((a) => slugFor(a) === slug);
+export const findBySlug = (events, slug) => events.find((a) => (a.slug || slugFor(a)) === slug);
 
 export const fmtRange = (a) => {
   const s = parseLocal(a.start);

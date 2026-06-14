@@ -25,6 +25,7 @@ async function load() {
         photo: v.coverUrl || undefined,
         focus: v.focus || undefined,
         photoCount: v.photoCount || 0,
+        source: v.source || "calendar",  // origin: calendar vs manual drive folder
       };
     });
     return { events, source: "firestore" };

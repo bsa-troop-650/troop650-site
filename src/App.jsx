@@ -226,11 +226,13 @@ export default function Troop650Site() {
 
   const { events, loading: eventsLoading } = useEvents();
   const upcoming = events
-    .filter(a => (a.end ? parseLocal(a.end) : parseLocal(a.start)) >= startOfToday())
+    .filter(a => (a.source || "calendar") === "calendar" && (a.end ? parseLocal(a.end) : parseLocal(a.start)) >= startOfToday())
     .sort((x, y) => parseLocal(x.start) - parseLocal(y.start)).slice(0, 6);
 
+  // Everything that isn't an upcoming calendar event: past adventures + all
+  // manual galleries (which never appear in "upcoming"), newest first.
   const recent = events
-    .filter(a => (a.end ? parseLocal(a.end) : parseLocal(a.start)) < startOfToday())
+    .filter(a => !((a.source || "calendar") === "calendar" && (a.end ? parseLocal(a.end) : parseLocal(a.start)) >= startOfToday()))
     .sort((x, y) => parseLocal(y.start) - parseLocal(x.start));
 
   const go = (id) => { setNavOpen(false); document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); };

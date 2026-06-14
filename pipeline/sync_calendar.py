@@ -1,32 +1,27 @@
-"""Calendar -> Firestore `events` collection.
+"""Calendar -> Firestore `events` (UPCOMING adventures only).
 
-Reads the troop calendar, keeps only whitelist-matched adventures, and upserts
-them keyed by calendar event ID (stable across renames). Future events that
-vanish from the calendar are removed (their Drive folders get orphan-handled
-by sync_folders); past events are immutable history and are never auto-deleted.
+Authority model: the calendar owns an adventure until its START date passes.
+While an event is still upcoming, calendar edits propagate (a rename re-titles
+the gallery, deleting the event removes its folder/gallery). The moment the
+start date passes, the event is handed off to Drive -- sync_folders takes over,
+the folder name becomes authoritative, and this module never touches it again.
+
+So this module only ever upserts/reconciles events whose start is today or
+later. A doc's `source` stays "calendar" forever (it records origin, not who
+currently owns it) so the site's upcoming/recent split stays clean.
 """
 import datetime as dt
 import re
 from zoneinfo import ZoneInfo
 
 from .config import (ADVENTURE_KEYWORDS, CALENDAR_ID, DRY_RUN, LOOKAHEAD_DAYS,
-                     LOOKBACK_DAYS, TYPE_MAP, TZ, log)
+                     LOOKBACK_DAYS, TZ, log)
 from .gcp import calendar_svc, db
+from .naming import slug_for, type_for
 
 LA = ZoneInfo(TZ)
 
-
-def slugify(title: str) -> str:
-    # Must match slugFor() in src/data/adventures.js exactly.
-    return re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
-
-
-def slug_for(start: str, title: str) -> str:
-    return f"{start}_{slugify(title)}"
-
-
-# Keywords match at word starts only ("raft" hits "rafting" but not
-# "Minecraft"); stems still work (camp -> campout/camping, cycl -> cycling).
+# Keywords match at word starts only ("raft" hits "rafting" but not "Minecraft").
 _KW_RE = re.compile(r"\b(?:" + "|".join(ADVENTURE_KEYWORDS) + r")")
 
 
@@ -37,16 +32,7 @@ def is_adventure(title: str) -> bool:
     return bool(_KW_RE.search(t))
 
 
-def type_for(title: str) -> str:
-    t = title.lower()
-    for key, pretty in TYPE_MAP:
-        if re.search(r"\b" + re.escape(key), t):
-            return pretty
-    return "Adventure"
-
-
 def _local_date(when: dict) -> str:
-    """Calendar start/end object -> local YYYY-MM-DD."""
     if "date" in when:  # all-day
         return when["date"]
     d = dt.datetime.fromisoformat(when["dateTime"])
@@ -93,30 +79,45 @@ def fetch_window():
 
 
 def run():
+    today = dt.datetime.now(LA).date().isoformat()
     raw = fetch_window()
-    adventures = {e["id"]: normalize(e) for e in raw
-                  if e.get("status") != "cancelled" and is_adventure(e.get("summary") or "")}
-    log(f"calendar: {len(raw)} events in window, {len(adventures)} adventures")
+
+    # Only future/starting-today adventures are calendar-managed.
+    upcoming = {}
+    for e in raw:
+        if e.get("status") == "cancelled":
+            continue
+        if not is_adventure(e.get("summary") or ""):
+            continue
+        data = normalize(e)
+        if data["start"] >= today:
+            upcoming[e["id"]] = data
+
+    log(f"calendar: {len(raw)} events in window, {len(upcoming)} upcoming adventures")
 
     database = db()
     col = database.collection("events")
 
-    for eid, data in adventures.items():
+    for eid, data in upcoming.items():
         if DRY_RUN:
             log(f"calendar: would upsert {data['slug']}")
         else:
-            col.document(eid).set(data, merge=True)  # merge keeps folderId/cover/photoCount
+            # merge keeps folderId / coverUrl / photoCount written by other steps
+            col.document(eid).set(data, merge=True)
 
-    # Reconcile: future-dated docs no longer on the calendar -> removed.
-    today = dt.datetime.now(LA).date().isoformat()
+    # Reconcile cancellations. A doc that is source=calendar and STILL future
+    # (stored start >= today) but no longer on the calendar = cancelled -> delete.
+    # Docs whose stored start has passed are deliberately left alone: Drive owns
+    # them now, and deleting here would fight the Drive pass.
     removed = []
     for doc in col.where("source", "==", "calendar").stream():
         d = doc.to_dict()
-        if d.get("start", "") >= today and doc.id not in adventures:
+        if d.get("start", "") >= today and doc.id not in upcoming:
             removed.append({"id": doc.id, **d})
             if DRY_RUN:
-                log(f"calendar: would remove future event {d.get('slug')}")
+                log(f"calendar: would remove cancelled upcoming '{d.get('slug')}'")
             else:
                 col.document(doc.id).delete()
-    log(f"calendar: upserted {len(adventures)}, removed {len(removed)} future events")
-    return list(adventures.keys()), removed
+
+    log(f"calendar: upserted {len(upcoming)} upcoming, removed {len(removed)} cancelled")
+    return list(upcoming.keys()), removed
