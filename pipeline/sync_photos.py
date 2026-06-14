@@ -92,10 +92,30 @@ def run():
         photos_col = database.collection("events").document(doc.id).collection("photos")
         existing = {p.id: p.to_dict() for p in photos_col.stream()}
 
-        # new or changed
+        # new, content-changed, or renamed
         for fid, f in drive_files.items():
-            if fid in existing and existing[fid].get("md5") == f.get("md5Checksum"):
+            same_content = (fid in existing
+                            and existing[fid].get("md5") == f.get("md5Checksum"))
+            same_name = (fid in existing
+                         and existing[fid].get("name") == f["name"])
+
+            if same_content and same_name:
+                continue  # nothing changed
+
+            if same_content and not same_name:
+                # Rename only: update metadata without re-downloading/re-encoding.
+                if DRY_RUN:
+                    log(f"photos: would update focal/name for {slug}/{f['name']}")
+                    continue
+                photos_col.document(fid).update({
+                    "name": f["name"],
+                    "order": f["name"].lower(),
+                    "focus": _focus_from_name(f["name"]),
+                })
+                log(f"photos: updated focal/name {slug}/{f['name']}")
+                total_new += 1
                 continue
+
             if DRY_RUN:
                 log(f"photos: would publish {slug}/{f['name']}")
                 total_new += 1
