@@ -26,6 +26,9 @@ jobs:
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
           GROUPME_TOKEN: ${{ secrets.GROUPME_TOKEN }}
+          GOOGLE_OAUTH_TOKEN: ${{ secrets.GOOGLE_OAUTH_TOKEN }}
+          GOOGLE_OAUTH_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}
+          GOOGLE_OAUTH_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}
           DRY_RUN: ${{ inputs.dry_run }}
           GROUPME_BACKFILL_DAYS: ${{ inputs.groupme_backfill_days }}
         run: python -m pipeline.run_all

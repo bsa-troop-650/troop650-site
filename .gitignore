@@ -1,9 +1,2 @@
-node_modules/
-dist/
-.env
-.env.*
-.DS_Store
-*.local
-.vite/
-assets/
-
+oauth_client.json
+mint_token.py

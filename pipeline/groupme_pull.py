@@ -22,7 +22,8 @@ import requests
 from googleapiclient.http import MediaIoBaseUpload
 
 from .config import DRY_RUN, GROUPME_GROUP_NAME, log
-from .gcp import db, drive_svc
+from .gcp import db
+from .oauth_drive import oauth_drive_svc
 
 API = "https://api.groupme.com/v3"
 TOKEN = os.environ.get("GROUPME_TOKEN", "")
@@ -59,7 +60,7 @@ def _sanitize(name: str) -> str:
 
 def _upload_to_inbox(inbox_id, fname, data, mime):
     media = MediaIoBaseUpload(io.BytesIO(data), mimetype=mime, resumable=False)
-    drive_svc().files().create(
+    oauth_drive_svc().files().create(
         body={"name": fname, "parents": [inbox_id]}, media_body=media, fields="id"
     ).execute()
 
