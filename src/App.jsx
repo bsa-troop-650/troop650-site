@@ -3,10 +3,12 @@ import {
   Mountain, TreePine, Tent, Compass, Flame, Users, Sparkles,
   ArrowUpRight, ArrowRight, Menu, X, Mail, MapPin, Clock,
   ChevronDown, Backpack, Send, Check, Footprints, Map, PawPrint,
-  HandHeart, ChevronLeft, ChevronRight
+  HandHeart, ChevronLeft, ChevronRight, CalendarPlus
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ADVENTURES, MON, parseLocal, startOfToday, slugFor } from "./data/adventures";
+import { MON, parseLocal, startOfToday, slugFor } from "./data/adventures";
+import { useEvents } from "./data/useEvents";
+import { downloadIcs } from "./lib/ics";
 
 /* TROOP 650 — Rancho Cucamonga · marketing site
    Direction by the troop's youth webmaster: warm & friendly (campfire), classic
@@ -136,6 +138,7 @@ function AdventureCard({ a, featured, delay }) {
         <div className="adv-when"><Icon size={15} strokeWidth={2} /><span>{formatRange(a)}</span><span className="adv-rel">{relLabel(a.start)}</span></div>
         <h3 className="adv-name">{a.name}</h3>
         <p className="adv-place"><MapPin size={13} strokeWidth={2} /> {a.place}</p>
+        <button className="adv-ics" onClick={() => downloadIcs(a)} title="Add to your calendar"><CalendarPlus size={13} strokeWidth={2} /> Add to calendar</button>
       </div>
     </Reveal>
   );
@@ -204,6 +207,7 @@ function RecapRail({ items }) {
               <img src={t.photo} alt={t.name} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", objectPosition: t.focus || "center" }} />
             ) : (<PlaceholderHills />)}
             <span className="recap-name">{t.name}</span>
+            {t.photoCount > 0 && <span className="recap-count">{t.photoCount} photo{t.photoCount === 1 ? "" : "s"}</span>}
           </Link>
         ))}
       </div>
@@ -220,11 +224,12 @@ export default function Troop650Site() {
   const [sending, setSending] = useState(false);
   const [err, setErr] = useState("");
 
-  const upcoming = ADVENTURES
+  const { events, loading: eventsLoading } = useEvents();
+  const upcoming = events
     .filter(a => (a.end ? parseLocal(a.end) : parseLocal(a.start)) >= startOfToday())
     .sort((x, y) => parseLocal(x.start) - parseLocal(y.start)).slice(0, 6);
 
-  const recent = ADVENTURES
+  const recent = events
     .filter(a => (a.end ? parseLocal(a.end) : parseLocal(a.start)) < startOfToday())
     .sort((x, y) => parseLocal(y.start) - parseLocal(x.start));
 
@@ -313,7 +318,9 @@ export default function Troop650Site() {
           <Reveal as="h2" className="h2 h2-light" delay={60}>Upcoming adventures</Reveal>
           <Reveal delay={120}><p className="adv-lead">Straight from the troop calendar — there&rsquo;s an outdoor activity almost every month. Here&rsquo;s what&rsquo;s coming up next.</p></Reveal>
         </div>
-        {upcoming.length > 0 ? (
+        {eventsLoading ? (
+          <p className="adv-loading">Loading the calendar…</p>
+        ) : upcoming.length > 0 ? (
           <>
             <div className="adv-grid">{upcoming.map((a, i) => <AdventureCard key={a.name} a={a} featured={i === 0} delay={i * 70} />)}</div>
             <Reveal className="adv-more" delay={80}>And that&rsquo;s just the next few — there&rsquo;s always something on the calendar.</Reveal>
@@ -412,7 +419,7 @@ export default function Troop650Site() {
       <footer className="foot">
         <TopoBand />
         <div className="foot-inner">
-          <div className="foot-brand"><div className="brand"><Mark size={28} light /><span className="brand-tx"><strong>Troop 650</strong><em>Scouting America</em></span></div><p>A family troop of Scouts BSA in Rancho Cucamonga, California.<br />California Inland Empire Council.</p></div>
+          <div className="foot-brand"><div className="brand"><Mark size={28} light /><span className="brand-tx"><strong>Troop 650</strong><em>Scouting America</em></span></div><p>A family troop of Scouts BSA in <span style={{ whiteSpace: "nowrap" }}>Rancho Cucamonga, California</span>.<br />California Inland Empire Council.</p></div>
           <div className="foot-links"><a href={BEASCOUT_URL} target="_blank" rel="noreferrer">Be A Scout <ArrowUpRight size={13} /></a><button onClick={() => go("adventures")}>Activities</button><button onClick={() => go("patrols")}>Patrols</button><button onClick={() => go("join")}>Join</button><button onClick={() => go("visit")}>Visit</button><button onClick={() => go("members")}>Members</button></div>
         </div>
         <div className="foot-bottom"><p className="foot-privacy"><Map size={13} /> Adventure photos are shared with our families&rsquo; permission — release forms on file.</p><p>© 2026 Troop 650 · 650rc.com · <span className="motto">Be Prepared.</span></p></div>
@@ -539,6 +546,10 @@ a.recap-tile{border-style:solid;border-color:rgba(244,237,220,.18)}
 .rail-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:38px;height:38px;border-radius:50%;border:1px solid rgba(244,237,220,.3);background:rgba(16,32,23,.88);color:#f4eddc;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s,color .2s}
 .rail-btn:hover{background:var(--gold);color:#1e3d2c}
 .rail-l{left:-12px}.rail-r{right:-12px}
+.recap-count{position:absolute;top:.5rem;right:.5rem;background:rgba(8,16,11,.78);color:#f4eddc;font-family:var(--fmono);font-size:.56rem;letter-spacing:.04em;padding:.22rem .5rem;border-radius:999px}
+.adv-loading{text-align:center;font-family:var(--fmono);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(244,237,220,.6);margin:2.5rem 0}
+.adv-ics{display:inline-flex;align-items:center;gap:.35rem;margin-top:.6rem;background:none;border:none;padding:0;cursor:pointer;font-family:var(--fmono);font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ember)}
+.adv-ics:hover{text-decoration:underline}
 .patrols{padding:clamp(4rem,9vw,7rem) clamp(1.2rem,5vw,4rem);background:var(--paper)}
 .patrols-lead{color:var(--ink-soft);font-size:1.04rem;margin-top:1rem;max-width:52ch}
 .patrol-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-top:2.6rem;max-width:760px}
@@ -643,7 +654,8 @@ a.recap-tile{border-style:solid;border-color:rgba(244,237,220,.18)}
 @media (max-width:640px){
   /* Bring the hero decorations into the narrow visible slice of the scene.
      Two knobs: translateX for the constellation, translate(x,y) scale() for the eagle. */
+  .hero .eyebrow{font-size:.6rem;letter-spacing:.12em}
   .cst-g{transform:translateX(-140px)}
-  .eagle-g{transform:translate(565px,282px) scale(.45)}
+  .eagle-g{transform:translate(430px,238px) scale(.55)}
 }
 `;

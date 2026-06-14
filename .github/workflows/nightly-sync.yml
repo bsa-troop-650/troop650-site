@@ -1,0 +1,31 @@
+name: Nightly content sync
+
+on:
+  schedule:
+    - cron: "0 10 * * *"   # 2am PDT / 3am PST
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Plan only — log actions without writing anything"
+        type: boolean
+        default: false
+      groupme_backfill_days:
+        description: "On first GroupMe run: import N days of history (0 = none)"
+        default: "0"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r pipeline/requirements.txt
+      - name: Run sync
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          GROUPME_TOKEN: ${{ secrets.GROUPME_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          GROUPME_BACKFILL_DAYS: ${{ inputs.groupme_backfill_days }}
+        run: python -m pipeline.run_all

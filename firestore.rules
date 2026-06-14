@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Public site reads events + their photo docs. All writes go through the
+    // pipeline's service account (Admin SDK bypasses these rules).
+    match /events/{event} {
+      allow read: if true;
+      match /photos/{photo} {
+        allow read: if true;
+      }
+    }
+    // Everything else (pipeline state, future private areas): no client access.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
