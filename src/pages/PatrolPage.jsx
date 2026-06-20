@@ -11,10 +11,10 @@ const PATROLS = {
     tag: "The original crew. Bring an appetite for adventure — and a little heat.",
     crest: "/spicy-tacos-crest.png",
   },
-  "new-patrol": {
-    name: "The girls\u2019 patrol",
-    tag: "Brand new and still picking a name.",
-    crest: null,
+  "starry-waves": {
+    name: "The Starry Waves",
+    tag: "The newest crew, riding big swells under a brighter sky.",
+    crest: "/starry-waves-crest.png",
   },
 };
 
