@@ -339,18 +339,18 @@ export default function Troop650Site() {
       <section id="patrols" className="patrols">
         <Reveal><p className="eyebrow eyebrow-dark">Meet the troop</p></Reveal>
         <Reveal as="h2" className="h2" delay={60}>Our patrols</Reveal>
-        <Reveal delay={110}><p className="patrols-lead">Every scout belongs to a patrol — a little crew they camp, cook, and figure things out with. Right now we&rsquo;ve got one, with a second on the way.</p></Reveal>
+        <Reveal delay={110}><p className="patrols-lead">Every scout belongs to a patrol — a little crew they camp, cook, and figure things out with.</p></Reveal>
         <div className="patrol-grid">
+          <Reveal className="patrol-card" delay={0}>
+            <img src="/spicy-tacos-crest.png" alt="Spicy Tacos patrol crest" className="patrol-crest" /><h3>The Spicy Tacos</h3>
+            <p className="patrol-tag">The original crew. Bring an appetite for adventure — and a little heat.</p>
+            <Link className="patrol-link" to="/patrols/spicy-tacos">Visit patrol page <ArrowRight size={13} /></Link>
+          </Reveal>
           <Reveal className="patrol-card" delay={90}>
             <img src="/starry-waves-crest.png" alt="The Starry Waves patrol crest" className="patrol-crest" />
             <h3>The Starry Waves</h3>
             <p className="patrol-tag">The newest crew, riding big swells under a brighter sky.</p>
             <Link className="patrol-link" to="/patrols/starry-waves">Visit patrol page <ArrowRight size={13} /></Link>
-          </Reveal>
-          <Reveal className="patrol-card patrol-soon" delay={90}>
-            <SoonCrest /><h3>The girls&rsquo; patrol</h3>
-            <p className="patrol-tag">Brand new and still picking a name. Watch this space.</p>
-            <Link className="patrol-link" to="/patrols/new-patrol">Visit patrol page <ArrowRight size={13} /></Link>
           </Reveal>
         </div>
       </section>
